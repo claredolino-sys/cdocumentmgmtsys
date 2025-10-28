@@ -6,6 +6,15 @@ A comprehensive web-based document management system for Biliran Province State 
 
 CDMIS is a full-stack web application designed to manage document inventories, track user activity, handle document requests, and automate reminders for record disposal based on predefined schedules.
 
+## 📥 Clone Repository
+
+To clone this repository and use it for your web app (including GitHub Spark):
+
+```bash
+git clone https://github.com/claredolino-sys/cdocumentmgmtsys.git
+cd cdocumentmgmtsys
+```
+
 ## 📋 Features
 
 ### User Roles
