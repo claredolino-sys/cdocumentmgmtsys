@@ -9,7 +9,11 @@ class JWT {
     
     private static function getSecret() {
         if (self::$secret === null) {
-            self::$secret = getenv('JWT_SECRET') ?: 'your-secret-key-change-this-in-production';
+            $envSecret = getenv('JWT_SECRET');
+            if ($envSecret === false || empty($envSecret)) {
+                throw new Exception('JWT_SECRET environment variable is not set');
+            }
+            self::$secret = $envSecret;
         }
         return self::$secret;
     }
