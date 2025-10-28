@@ -104,14 +104,22 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
     
     # Update database credentials
-    sed -i.bak "s/DB_USER=.*/DB_USER=${DB_USER}/" .env
-    sed -i.bak "s/DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
-    rm .env.bak
+    # Detect OS and set SED_INPLACE variable
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        SED_INPLACE="sed -i.bak"
+    else
+        SED_INPLACE="sed -i"
+    fi
+
+    $SED_INPLACE "s/DB_USER=.*/DB_USER=${DB_USER}/" .env
+    $SED_INPLACE "s/DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
+    # Remove backup file if it exists (macOS/BSD)
+    [ -f .env.bak ] && rm .env.bak
     
     # Generate JWT secret
     JWT_SECRET=$(openssl rand -base64 32)
-    sed -i.bak "s|JWT_SECRET=.*|JWT_SECRET=${JWT_SECRET}|" .env
-    rm .env.bak
+    $SED_INPLACE "s|JWT_SECRET=.*|JWT_SECRET=${JWT_SECRET}|" .env
+    [ -f .env.bak ] && rm .env.bak
     
     echo "✅ Backend .env created"
 else
