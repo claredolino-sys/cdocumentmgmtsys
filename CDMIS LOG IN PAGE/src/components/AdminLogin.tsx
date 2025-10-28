@@ -1,16 +1,37 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import backgroundImage from "figma:asset/5a957da2c117ca8b97f1cfc3c25ae862f8edc83b.png";
 import bipsuLogo from "figma:asset/361443aa4e0a27fb2ccdaa4a85ae3fcb8a577692.png";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useAuth } from "../contexts/AuthContext";
 
 interface AdminLoginProps {
   onBack?: () => void;
 }
 
 export function AdminLogin({ onBack }: AdminLoginProps) {
-  const handleLogin = (e: React.FormEvent) => {
+  const [schoolId, setSchoolId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Admin login submitted");
+    setError("");
+    setIsLoading(true);
+
+    try {
+      await login({ school_id: schoolId, password });
+      // Redirect to admin dashboard
+      navigate("/admin/reports");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Login failed. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,29 +79,42 @@ export function AdminLogin({ onBack }: AdminLoginProps) {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+            
             {/* User ID Input */}
             <div>
               <label htmlFor="userId" className="block text-sm mb-2">
-                User id
+                School ID
               </label>
               <Input
                 id="userId"
                 type="text"
+                value={schoolId}
+                onChange={(e) => setSchoolId(e.target.value)}
                 className="w-full h-12 bg-white border-b border-gray-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-gray-500"
-                placeholder=""
+                placeholder="e.g., 22-1-02642"
+                required
               />
             </div>
 
             {/* Password Input */}
             <div>
               <label htmlFor="password" className="block text-sm mb-2">
-                Password
+                Password (4 characters)
               </label>
               <Input
                 id="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-12 bg-white border-b border-gray-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-gray-500"
                 placeholder=""
+                maxLength={4}
+                required
               />
             </div>
 
@@ -88,9 +122,10 @@ export function AdminLogin({ onBack }: AdminLoginProps) {
             <div className="pt-4">
               <Button 
                 type="submit"
-                className="w-full h-12 bg-[#6366F1] hover:bg-[#5558E3] text-white rounded-lg"
+                disabled={isLoading}
+                className="w-full h-12 bg-[#6366F1] hover:bg-[#5558E3] text-white rounded-lg disabled:opacity-50"
               >
-                Login
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </div>
           </form>
