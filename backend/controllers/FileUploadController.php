@@ -19,7 +19,7 @@ class FileUploadController {
         
         // Create upload directory if it doesn't exist
         if (!file_exists($this->uploadDir)) {
-            mkdir($this->uploadDir, 0777, true);
+            mkdir($this->uploadDir, 0755, true);
         }
     }
     
